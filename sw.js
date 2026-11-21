@@ -1,7 +1,7 @@
 // Service worker do Leitor EPUB: guarda o app no aparelho para funcionar offline.
 // Estratégia: abre sempre a cópia guardada (rápido e offline) e, se houver internet,
 // baixa a versão nova em segundo plano. A versão nova aparece na próxima abertura.
-const CACHE = "leitor-v1";
+const CACHE = "leitor-v2";
 const FILES = [
   "./",
   "index.html",
