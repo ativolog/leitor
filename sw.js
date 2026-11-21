@@ -1,7 +1,7 @@
 // Service worker do Leitor EPUB: guarda o app no aparelho para funcionar offline.
 // Estratégia: abre sempre a cópia guardada (rápido e offline) e, se houver internet,
-// baixa a versão nova em segundo plano. A versão nova aparece na próxima abertura.
-const CACHE = "leitor-v2";
+// baixa a versão nova em segundo plano (sem usar o cache do navegador). A versão nova aparece na próxima abertura.
+const CACHE = "leitor-v3";
 const FILES = [
   "./",
   "index.html",
@@ -13,7 +13,7 @@ const FILES = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES.map((u) => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (event) => {
@@ -34,7 +34,7 @@ self.addEventListener("fetch", (event) => {
     const cache = await caches.open(CACHE);
     const key = req.mode === "navigate" ? "./" : req;
     const cached = await cache.match(key, { ignoreSearch: true });
-    const network = fetch(req).then((res) => {
+    const network = fetch(req.url, { cache: "no-cache", credentials: "same-origin" }).then((res) => {
       if (res && res.ok) cache.put(key, res.clone());
       return res;
     }).catch(() => null);
